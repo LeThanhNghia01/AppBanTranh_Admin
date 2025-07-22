@@ -1,0 +1,780 @@
+// lib/screens/home_screen.dart
+import 'package:app_ban_tranh_admin/models/user.dart';
+import 'package:flutter/material.dart';
+import 'package:app_ban_tranh_admin/models/artwork.dart';
+
+class QlArtworkScreen extends StatefulWidget {
+  final User user;
+
+  const QlArtworkScreen({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<QlArtworkScreen> createState() => _QlArtworkScreenState();
+}
+
+class _QlArtworkScreenState extends State<QlArtworkScreen> {
+  // Hàm xóa tác phẩm
+  void _deleteArtwork(ArtworkItem artwork) {
+    _showDeleteConfirmDialog(artwork);
+  }
+
+  // Hàm hiển thị dialog thêm tác phẩm mới
+  void _showAddArtworkDialog() {
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController artistController = TextEditingController();
+    final TextEditingController priceController = TextEditingController();
+    final TextEditingController descriptionController = TextEditingController();
+    final TextEditingController materialController = TextEditingController();
+    final TextEditingController yearController = TextEditingController();
+    final TextEditingController categoryController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Thêm tác phẩm mới'),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      labelText: 'Tên tác phẩm',
+                      prefixIcon: Icon(Icons.title),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: artistController,
+                    decoration: InputDecoration(
+                      labelText: 'Tên nghệ sĩ',
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: priceController,
+                    decoration: InputDecoration(
+                      labelText: 'Giá',
+                      prefixIcon: Icon(Icons.attach_money),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: materialController,
+                    decoration: InputDecoration(
+                      labelText: 'Chất liệu',
+                      prefixIcon: Icon(Icons.brush),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: yearController,
+                    decoration: InputDecoration(
+                      labelText: 'Năm sáng tác',
+                      prefixIcon: Icon(Icons.calendar_today),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: categoryController,
+                    decoration: InputDecoration(
+                      labelText: 'Thể loại',
+                      prefixIcon: Icon(Icons.category),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: descriptionController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: 'Mô tả',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Chọn ảnh từ thư viện
+                    },
+                    child: Text('Chọn ảnh chính'),
+                  ),
+                  SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Chọn nhiều ảnh phụ
+                    },
+                    child: Text('Chọn ảnh phụ'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Xử lý thêm tác phẩm
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Đã thêm tác phẩm "${titleController.text}"'),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text('Thêm', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showFilterArtworkDialog() {}
+  // Hàm hiển thị options cho mỗi tác phẩm
+  void _showArtworkOptions(ArtworkItem artwork) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.visibility, color: Colors.green),
+                title: Text('Xem chi tiết'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showArtworkDetail(artwork);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.edit, color: Colors.blue),
+                title: Text('Chỉnh sửa'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditArtworkDialog(artwork);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete, color: Colors.red),
+                title: Text('Xóa'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDeleteConfirmDialog(artwork);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Hàm hiển thị chi tiết tác phẩm với gallery ảnh
+  void _showArtworkDetail(ArtworkItem artwork) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      topRight: Radius.circular(8),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Chi tiết tác phẩm',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Icons.close, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+                // Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Gallery ảnh
+                        Container(
+                          height: 250,
+                          child: PageView.builder(
+                            itemCount: artwork.allImages.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: EdgeInsets.symmetric(horizontal: 4),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.asset(
+                                    artwork.allImages[index],
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey[300],
+                                        child: Icon(
+                                          Icons.image_not_supported,
+                                          size: 50,
+                                          color: Colors.grey[600],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        // Thông tin tác phẩm
+                        Text(
+                          artwork.title,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          artwork.artist,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          artwork.price,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        _buildInfoRow(
+                          'Chất liệu:',
+                          artwork.material ?? 'Không có',
+                        ),
+                        _buildInfoRow(
+                          'Năm sáng tác:',
+                          artwork.yearcreated ?? 'Không có',
+                        ),
+                        _buildInfoRow('Thể loại:', artwork.genre ?? 'Không có'),
+                        SizedBox(height: 16),
+                        Text(
+                          'Mô tả:',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          artwork.description.isNotEmpty
+                              ? artwork.description
+                              : 'Không có mô tả',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          Expanded(child: Text(value, style: TextStyle(fontSize: 14))),
+        ],
+      ),
+    );
+  }
+
+  // Hàm hiển thị dialog chỉnh sửa tác phẩm
+  void _showEditArtworkDialog(ArtworkItem artwork) {
+    final TextEditingController titleController = TextEditingController(
+      text: artwork.title,
+    );
+    final TextEditingController artistController = TextEditingController(
+      text: artwork.artist,
+    );
+    final TextEditingController priceController = TextEditingController(
+      text: artwork.price,
+    );
+    final TextEditingController descriptionController = TextEditingController(
+      text: artwork.description,
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Chỉnh sửa tác phẩm'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    labelText: 'Tên tác phẩm',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 12),
+                TextField(
+                  controller: artistController,
+                  decoration: InputDecoration(
+                    labelText: 'Tên nghệ sĩ',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 12),
+                TextField(
+                  controller: priceController,
+                  decoration: InputDecoration(
+                    labelText: 'Giá',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 12),
+                TextField(
+                  controller: descriptionController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Mô tả',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Xử lý cập nhật tác phẩm
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Đã cập nhật tác phẩm "${titleController.text}"',
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              child: Text('Cập nhật', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Hàm hiển thị dialog xác nhận xóa
+  void _showDeleteConfirmDialog(ArtworkItem artwork) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Xác nhận xóa'),
+          content: Text(
+            'Bạn có chắc chắn muốn xóa tác phẩm "${artwork.title}" không?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Xử lý xóa tác phẩm
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Đã xóa tác phẩm "${artwork.title}"')),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text('Xóa', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Row(
+            children: [
+              Image.asset(
+                'assets/images/logo_art.png',
+                height: 40,
+                width: 40,
+                fit: BoxFit.contain,
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Quản Lý Tác Phẩm',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          // Phần chứa nút Back và nút Thêm Mới
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Nút Back
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.arrow_back, color: Colors.blue, size: 20),
+                      SizedBox(width: 4),
+                      Text(
+                        'Quay lại',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    //Nút lọc
+                    ElevatedButton(
+                      onPressed: _showFilterArtworkDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          159,
+                          233,
+                          243,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                      ),
+                      child: Text(
+                        'Lọc',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    // Nút Thêm Mới
+                    ElevatedButton(
+                      onPressed: _showAddArtworkDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                      ),
+                      child: Text(
+                        'Thêm Mới',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Đường phân cách
+          Divider(height: 1, color: Colors.grey[300], thickness: 1),
+
+          // Phần ListView hiển thị các tác phẩm
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.all(16),
+              itemCount: artworks.length,
+              itemBuilder: (context, index) {
+                final artwork = artworks[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        // Ảnh tác phẩm - có thể bấm để xem gallery
+                        GestureDetector(
+                          onTap: () => _showArtworkDetail(artwork),
+                          child: Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  spreadRadius: 1,
+                                  blurRadius: 3,
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Stack(
+                                children: [
+                                  Image.asset(
+                                    artwork.imagePath,
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        width: 80,
+                                        height: 80,
+                                        color: Colors.grey[300],
+                                        child: Icon(
+                                          Icons.image_not_supported,
+                                          color: Colors.grey[600],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  // Hiển thị số lượng ảnh nếu có nhiều hơn 1
+                                  if (artwork.allImages.length > 1)
+                                    Positioned(
+                                      top: 4,
+                                      right: 4,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${artwork.allImages.length}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        // Thông tin tác phẩm
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                artwork.title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                artwork.artist,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 4),
+                              if (artwork.yearcreated != null)
+                                Text(
+                                  'Năm ${artwork.yearcreated}',
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              SizedBox(height: 4),
+                              if (artwork.material != null &&
+                                  artwork.material!.isNotEmpty)
+                                Text(
+                                  artwork.material!,
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              SizedBox(height: 8),
+                              Text(
+                                artwork.price,
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Nút actions
+                        Column(
+                          children: [
+                            IconButton(
+                              onPressed: () => _showArtworkOptions(artwork),
+                              icon: Icon(
+                                Icons.more_vert,
+                                color: Colors.grey[600],
+                              ),
+                              iconSize: 20,
+                            ),
+                            IconButton(
+                              onPressed: () => _deleteArtwork(artwork),
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              iconSize: 20,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
