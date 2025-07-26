@@ -20,26 +20,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
-  int _currentPage = 0;
-
-  // Danh sách ID tác phẩm yêu thích
-  List<String> _favoriteIds = [];
-
-  // Hàm kiểm tra tác phẩm có được yêu thích không
-  bool _isFavorite(String id) {
-    return _favoriteIds.contains(id);
-  }
-
-  // Hàm toggle trạng thái yêu thích
-  void _toggleFavorite(String id) {
-    setState(() {
-      if (_favoriteIds.contains(id)) {
-        _favoriteIds.remove(id);
-      } else {
-        _favoriteIds.add(id);
-      }
-    });
-  }
 
   @override
   void dispose() {
@@ -349,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.person),
+            leading: Icon(Icons.palette),
             title: Text('Quản lý chất liệu'),
             onTap: () {
               Navigator.pop(context);
@@ -362,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.person),
+            leading: Icon(Icons.list_alt),
             title: Text('Quản lý đơn hàng'),
             onTap: () {
               Navigator.pop(context);

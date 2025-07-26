@@ -13,6 +13,25 @@ class QlArtworkScreen extends StatefulWidget {
 }
 
 class _QlArtworkScreenState extends State<QlArtworkScreen> {
+  // Dữ liệu mẫu từ các bảng khác
+  List<String> artists = [
+    'LT Nghiax',
+    'Doonstrij2',
+    'Minh Hoàng Artist',
+    'Văn Thành Painter',
+  ];
+  List<String> materials = ['Sơn dầu', 'Lụa', 'Gốm', 'Đồng', 'Gỗ', 'Giấy'];
+  List<String> categories = [
+    'Tranh phong cảnh',
+    'Tranh chân dung',
+    'Tranh trừu tượng',
+    'Tranh tĩnh vật',
+  ];
+
+  String? selectedArtist;
+  String? selectedMaterial;
+  String? selectedCategory;
+
   // Hàm xóa tác phẩm
   void _deleteArtwork(ArtworkItem artwork) {
     _showDeleteConfirmDialog(artwork);
@@ -21,126 +40,188 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
   // Hàm hiển thị dialog thêm tác phẩm mới
   void _showAddArtworkDialog() {
     final TextEditingController titleController = TextEditingController();
-    final TextEditingController artistController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
     final TextEditingController descriptionController = TextEditingController();
-    final TextEditingController materialController = TextEditingController();
     final TextEditingController yearController = TextEditingController();
-    final TextEditingController categoryController = TextEditingController();
+
+    selectedArtist = null;
+    selectedMaterial = null;
+    selectedCategory = null;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Thêm tác phẩm mới'),
-          content: SingleChildScrollView(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-
-                children: [
-                  TextField(
-                    controller: titleController,
-                    decoration: InputDecoration(
-                      labelText: 'Tên tác phẩm',
-                      prefixIcon: Icon(Icons.title),
-                      border: OutlineInputBorder(),
-                    ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Thêm tác phẩm mới'),
+              content: SingleChildScrollView(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: titleController,
+                        decoration: InputDecoration(
+                          labelText: 'Tên tác phẩm *',
+                          prefixIcon: Icon(Icons.title),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: selectedArtist,
+                        decoration: InputDecoration(
+                          labelText: 'Nghệ sĩ *',
+                          prefixIcon: Icon(Icons.person),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: artists.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedArtist = newValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Vui lòng chọn nghệ sĩ';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 12),
+                      TextField(
+                        controller: priceController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Giá *',
+                          prefixIcon: Icon(Icons.attach_money),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: selectedMaterial,
+                        decoration: InputDecoration(
+                          labelText: 'Chất liệu',
+                          prefixIcon: Icon(Icons.brush),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: materials.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedMaterial = newValue;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 12),
+                      TextField(
+                        controller: yearController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Năm sáng tác',
+                          prefixIcon: Icon(Icons.calendar_today),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: selectedCategory,
+                        decoration: InputDecoration(
+                          labelText: 'Thể loại',
+                          prefixIcon: Icon(Icons.category),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: categories.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedCategory = newValue;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 12),
+                      TextField(
+                        controller: descriptionController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          labelText: 'Mô tả',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Chọn ảnh từ thư viện
+                        },
+                        child: Text('Chọn ảnh chính'),
+                      ),
+                      SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Chọn nhiều ảnh phụ
+                        },
+                        child: Text('Chọn ảnh phụ'),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: artistController,
-                    decoration: InputDecoration(
-                      labelText: 'Tên nghệ sĩ',
-                      prefixIcon: Icon(Icons.person),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: priceController,
-                    decoration: InputDecoration(
-                      labelText: 'Giá',
-                      prefixIcon: Icon(Icons.attach_money),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: materialController,
-                    decoration: InputDecoration(
-                      labelText: 'Chất liệu',
-                      prefixIcon: Icon(Icons.brush),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: yearController,
-                    decoration: InputDecoration(
-                      labelText: 'Năm sáng tác',
-                      prefixIcon: Icon(Icons.calendar_today),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: categoryController,
-                    decoration: InputDecoration(
-                      labelText: 'Thể loại',
-                      prefixIcon: Icon(Icons.category),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: descriptionController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      labelText: 'Mô tả',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Chọn ảnh từ thư viện
-                    },
-                    child: Text('Chọn ảnh chính'),
-                  ),
-                  SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Chọn nhiều ảnh phụ
-                    },
-                    child: Text('Chọn ảnh phụ'),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Xử lý thêm tác phẩm
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Đã thêm tác phẩm "${titleController.text}"'),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text('Thêm', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Hủy'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (titleController.text.trim().isEmpty ||
+                        selectedArtist == null ||
+                        priceController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Vui lòng điền đầy đủ thông tin bắt buộc',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Xử lý thêm tác phẩm
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Đã thêm tác phẩm "${titleController.text}"',
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: Text('Thêm', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -363,83 +444,171 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
     final TextEditingController titleController = TextEditingController(
       text: artwork.title,
     );
-    final TextEditingController artistController = TextEditingController(
-      text: artwork.artist,
-    );
     final TextEditingController priceController = TextEditingController(
       text: artwork.price,
     );
     final TextEditingController descriptionController = TextEditingController(
       text: artwork.description,
     );
+    final TextEditingController yearController = TextEditingController(
+      text: artwork.yearcreated,
+    );
+
+    selectedArtist = artwork.artist;
+    selectedMaterial = artwork.material;
+    selectedCategory = artwork.genre;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Chỉnh sửa tác phẩm'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    labelText: 'Tên tác phẩm',
-                    border: OutlineInputBorder(),
-                  ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Chỉnh sửa tác phẩm'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        labelText: 'Tên tác phẩm *',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedArtist,
+                      decoration: InputDecoration(
+                        labelText: 'Nghệ sĩ *',
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: artists.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedArtist = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 12),
+                    TextField(
+                      controller: priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Giá *',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedMaterial,
+                      decoration: InputDecoration(
+                        labelText: 'Chất liệu',
+                        prefixIcon: Icon(Icons.brush),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: materials.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedMaterial = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 12),
+                    TextField(
+                      controller: yearController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Năm sáng tác',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: 'Thể loại',
+                        prefixIcon: Icon(Icons.category),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: categories.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedCategory = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 12),
+                    TextField(
+                      controller: descriptionController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: 'Mô tả',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 12),
-                TextField(
-                  controller: artistController,
-                  decoration: InputDecoration(
-                    labelText: 'Tên nghệ sĩ',
-                    border: OutlineInputBorder(),
-                  ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Hủy'),
                 ),
-                SizedBox(height: 12),
-                TextField(
-                  controller: priceController,
-                  decoration: InputDecoration(
-                    labelText: 'Giá',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 12),
-                TextField(
-                  controller: descriptionController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    labelText: 'Mô tả',
-                    border: OutlineInputBorder(),
+                ElevatedButton(
+                  onPressed: () {
+                    if (titleController.text.trim().isEmpty ||
+                        selectedArtist == null ||
+                        priceController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Vui lòng điền đầy đủ thông tin bắt buộc',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Xử lý cập nhật tác phẩm
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Đã cập nhật tác phẩm "${titleController.text}"',
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  child: Text(
+                    'Cập nhật',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Xử lý cập nhật tác phẩm
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Đã cập nhật tác phẩm "${titleController.text}"',
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-              child: Text('Cập nhật', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+            );
+          },
         );
       },
     );

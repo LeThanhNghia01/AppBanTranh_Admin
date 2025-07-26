@@ -20,43 +20,36 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
       id: '1',
       artistname: 'LT Nghiax',
       profilePictureUrl: 'assets/images/avAdmin.jpg',
-      isVerified: true,
     ),
     Artist(
       id: '2',
       artistname: 'Doonstrij2',
       profilePictureUrl: 'assets/images/avAdmin.jpg',
-      isVerified: true,
     ),
     Artist(
       id: '3',
       artistname: 'Rune Quizzter',
       profilePictureUrl: 'assets/images/avAdmin.jpg',
-      isVerified: false,
     ),
     Artist(
       id: '4',
       artistname: 'Minh Hoàng Artist',
       profilePictureUrl: 'assets/images/avAdmin.jpg',
-      isVerified: true,
     ),
     Artist(
       id: '5',
       artistname: 'Văn Thành Painter',
       profilePictureUrl: 'assets/images/avAdmin.jpg',
-      isVerified: true,
     ),
     Artist(
       id: '6',
       artistname: 'Nguyễn Thu Trang',
       profilePictureUrl: 'assets/images/avAdmin.jpg',
-      isVerified: false,
     ),
   ];
 
   final TextEditingController _searchController = TextEditingController();
   List<Artist> filteredArtists = [];
-  String _selectedFilter = 'all';
 
   @override
   void initState() {
@@ -67,28 +60,13 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
 
   void _filterArtists() {
     setState(() {
-      List<Artist> searchResults = artists
+      filteredArtists = artists
           .where(
             (artist) => artist.artistname.toLowerCase().contains(
               _searchController.text.toLowerCase(),
             ),
           )
           .toList();
-
-      switch (_selectedFilter) {
-        case 'verified':
-          filteredArtists = searchResults
-              .where((artist) => artist.isVerified)
-              .toList();
-          break;
-        case 'unverified':
-          filteredArtists = searchResults
-              .where((artist) => !artist.isVerified)
-              .toList();
-          break;
-        default:
-          filteredArtists = searchResults;
-      }
     });
   }
 
@@ -100,78 +78,58 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
 
   void _showAddArtistDialog() {
     final TextEditingController nameController = TextEditingController();
-    bool isVerified = true;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Row(
-                children: [
-                  Icon(Icons.person_add, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text('Thêm Tác Giả Mới'),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Tên tác giả *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: isVerified,
-                        onChanged: (value) {
-                          setState(() {
-                            isVerified = value ?? true;
-                          });
-                        },
-                      ),
-                      Text('Tài khoản đã xác thực'),
-                    ],
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Hủy'),
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.person_add, color: Colors.blue),
+              SizedBox(width: 8),
+              Text('Thêm Tác Giả Mới'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'Tên tác giả *',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (nameController.text.trim().isNotEmpty) {
-                      _addArtist(nameController.text.trim(), isVerified);
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text('Thêm'),
-                ),
-              ],
-            );
-          },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (nameController.text.trim().isNotEmpty) {
+                  _addArtist(nameController.text.trim());
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Thêm'),
+            ),
+          ],
         );
       },
     );
   }
 
-  void _addArtist(String name, bool isVerified) {
+  void _addArtist(String name) {
     setState(() {
       artists.add(
         Artist(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           artistname: name,
           profilePictureUrl: 'assets/images/avAdmin.jpg',
-          isVerified: isVerified,
         ),
       );
       _filterArtists();
@@ -195,82 +153,56 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
     final TextEditingController nameController = TextEditingController(
       text: artist.artistname,
     );
-    bool isVerified = artist.isVerified;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Row(
-                children: [
-                  Icon(Icons.edit, color: Colors.orange),
-                  SizedBox(width: 8),
-                  Text('Chỉnh Sửa Tác Giả'),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Tên tác giả *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: isVerified,
-                        onChanged: (value) {
-                          setState(() {
-                            isVerified = value ?? true;
-                          });
-                        },
-                      ),
-                      Text('Tài khoản đã xác thực'),
-                    ],
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Hủy'),
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Chỉnh Sửa Tác Giả'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'Tên tác giả *',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (nameController.text.trim().isNotEmpty) {
-                      _editArtist(
-                        artist,
-                        nameController.text.trim(),
-                        isVerified,
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Text('Cập nhật'),
-                ),
-              ],
-            );
-          },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (nameController.text.trim().isNotEmpty) {
+                  _editArtist(artist, nameController.text.trim());
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Cập nhật'),
+            ),
+          ],
         );
       },
     );
   }
 
-  void _editArtist(Artist oldArtist, String newName, bool isVerified) {
+  void _editArtist(Artist oldArtist, String newName) {
     setState(() {
       int index = artists.indexWhere((a) => a.id == oldArtist.id);
       if (index != -1) {
-        artists[index] = oldArtist.copyWith(
-          artistname: newName,
-          isVerified: isVerified,
-        );
+        artists[index] = oldArtist.copyWith(artistname: newName);
       }
       _filterArtists();
     });
@@ -414,32 +346,8 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
     );
   }
 
-  void _toggleVerification(Artist artist) {
-    setState(() {
-      int index = artists.indexWhere((a) => a.id == artist.id);
-      if (index != -1) {
-        artists[index] = artist.copyWith(isVerified: !artist.isVerified);
-      }
-      _filterArtists();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          artist.isVerified
-              ? 'Đã hủy xác thực tác giả "${artist.artistname}"'
-              : 'Đã xác thực tác giả "${artist.artistname}"',
-        ),
-        backgroundColor: artist.isVerified ? Colors.orange : Colors.green,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    int verifiedCount = artists.where((a) => a.isVerified).length;
-    int unverifiedCount = artists.length - verifiedCount;
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: PreferredSize(
@@ -539,71 +447,6 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
 
                 SizedBox(height: 16),
 
-                // Filter chips
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      FilterChip(
-                        label: Text('Tất cả (${artists.length})'),
-                        selected: _selectedFilter == 'all',
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = 'all';
-                            _filterArtists();
-                          });
-                        },
-                      ),
-                      SizedBox(width: 8),
-                      FilterChip(
-                        label: Text('Đã xác thực ($verifiedCount)'),
-                        selected: _selectedFilter == 'verified',
-                        selectedColor: Colors.green.shade100,
-                        checkmarkColor: Colors.green,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = 'verified';
-                            _filterArtists();
-                          });
-                        },
-                      ),
-                      SizedBox(width: 8),
-                      FilterChip(
-                        label: Text('Chưa xác thực ($unverifiedCount)'),
-                        selected: _selectedFilter == 'unverified',
-                        selectedColor: Colors.orange.shade100,
-                        checkmarkColor: Colors.orange,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedFilter = 'unverified';
-                            _filterArtists();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 12),
-
-                // Statistics
-                Row(
-                  children: [
-                    Icon(Icons.people, color: Colors.grey[600], size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Hiển thị: ${filteredArtists.length} / ${artists.length} tác giả',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 12),
-
                 // Statistics
                 Row(
                   children: [
@@ -675,45 +518,19 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
                         ),
                         child: ListTile(
                           contentPadding: EdgeInsets.all(16),
-                          leading: Stack(
-                            children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundColor: Colors.blue.shade100,
-                                backgroundImage:
-                                    artist.profilePictureUrl != null
-                                    ? AssetImage(artist.profilePictureUrl!)
-                                    : null,
-                                child: artist.profilePictureUrl == null
-                                    ? Icon(
-                                        Icons.person,
-                                        color: Colors.blue,
-                                        size: 28,
-                                      )
-                                    : null,
-                              ),
-                              if (artist.isVerified)
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    padding: EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.check,
-                                      color: Colors.white,
-                                      size: 12,
-                                    ),
-                                  ),
-                                ),
-                            ],
+                          leading: CircleAvatar(
+                            radius: 28,
+                            backgroundColor: Colors.blue.shade100,
+                            backgroundImage: artist.profilePictureUrl != null
+                                ? AssetImage(artist.profilePictureUrl!)
+                                : null,
+                            child: artist.profilePictureUrl == null
+                                ? Icon(
+                                    Icons.person,
+                                    color: Colors.blue,
+                                    size: 28,
+                                  )
+                                : null,
                           ),
                           title: Text(
                             artist.artistname,
@@ -733,41 +550,6 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
                                   fontSize: 12,
                                 ),
                               ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    artist.isVerified
-                                        ? Icons.verified_user
-                                        : Icons.pending,
-                                    color: artist.isVerified
-                                        ? Colors.green
-                                        : Colors.orange,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    artist.isVerified
-                                        ? 'Đã xác thực'
-                                        : 'Chưa xác thực',
-                                    style: TextStyle(
-                                      color: artist.isVerified
-                                          ? Colors.green
-                                          : Colors.orange,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Ngày tạo: ${artist.createdAt?.day}/${artist.createdAt?.month}/${artist.createdAt?.year}',
-                                style: TextStyle(
-                                  color: Colors.grey[500],
-                                  fontSize: 11,
-                                ),
-                              ),
                             ],
                           ),
                           trailing: PopupMenuButton<String>(
@@ -775,9 +557,6 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
                               switch (value) {
                                 case 'edit':
                                   _showEditArtistDialog(artist);
-                                  break;
-                                case 'toggle_verify':
-                                  _toggleVerification(artist);
                                   break;
                                 case 'delete':
                                   _showDeleteConfirmDialog(artist);
@@ -796,28 +575,6 @@ class _QlArtistScreenState extends State<QlArtistScreen> {
                                     ),
                                     SizedBox(width: 8),
                                     Text('Chỉnh sửa'),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem<String>(
-                                value: 'toggle_verify',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      artist.isVerified
-                                          ? Icons.cancel
-                                          : Icons.verified_user,
-                                      color: artist.isVerified
-                                          ? Colors.orange
-                                          : Colors.green,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      artist.isVerified
-                                          ? 'Hủy xác thực'
-                                          : 'Xác thực',
-                                    ),
                                   ],
                                 ),
                               ),

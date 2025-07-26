@@ -1,5 +1,6 @@
 // lib/screens/main_screen.dart (hoặc navigation_screen.dart)
 import 'package:app_ban_tranh_admin/models/user.dart';
+import 'package:app_ban_tranh_admin/screens/account_screen.dart';
 import 'package:app_ban_tranh_admin/screens/home_screen.dart';
 import 'package:app_ban_tranh_admin/screens/ql_order_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +17,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // Add all screens to the list
   final List<Widget> _screens = [
     HomeScreen(user: currentUser),
     // const LiveScreen(),
     QlOrderScreen(user: currentUser),
-    // const ProfileScreen(),
+    AccountScreen(user: currentUser),
   ];
 
   void _onItemTapped(int index) {
@@ -40,10 +40,7 @@ class _MainScreenState extends State<MainScreen> {
         elevation: 8,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang Chủ'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.videocam),
-            label: 'Trực Tiếp',
-          ),
+
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long),
             label: 'Đơn Hàng',
