@@ -13,6 +13,9 @@ class QlArtworkScreen extends StatefulWidget {
 }
 
 class _QlArtworkScreenState extends State<QlArtworkScreen> {
+  //kiểm tra xem có tích vào box phân loại sản phẩm k
+  bool isSPThuong = false;
+  bool isSPDauGia = false;
   // Dữ liệu mẫu từ các bảng khác
   List<String> artists = [
     'LT Nghiax',
@@ -47,6 +50,8 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
     selectedArtist = null;
     selectedMaterial = null;
     selectedCategory = null;
+    isSPThuong = false;
+    isSPDauGia = false;
 
     showDialog(
       context: context,
@@ -61,6 +66,173 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Phần phân loại sản phẩm - Di chuyển lên đầu
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        padding: EdgeInsets.all(16),
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Phân loại sản phẩm',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        isSPThuong = !isSPThuong;
+                                        if (isSPThuong) isSPDauGia = false;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: isSPThuong
+                                            ? Colors.green[50]
+                                            : Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: isSPThuong
+                                              ? Colors.green
+                                              : Colors.grey[300]!,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 20,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                              color: isSPThuong
+                                                  ? Colors.green
+                                                  : Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color: isSPThuong
+                                                    ? Colors.green
+                                                    : Colors.grey[400]!,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: isSPThuong
+                                                ? Icon(
+                                                    Icons.check,
+                                                    size: 14,
+                                                    color: Colors.white,
+                                                  )
+                                                : null,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Sản phẩm thường',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: isSPThuong
+                                                    ? FontWeight.w600
+                                                    : FontWeight.normal,
+                                                color: isSPThuong
+                                                    ? Colors.green[700]
+                                                    : Colors.grey[700],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        isSPDauGia = !isSPDauGia;
+                                        if (isSPDauGia) isSPThuong = false;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: isSPDauGia
+                                            ? Colors.orange[50]
+                                            : Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: isSPDauGia
+                                              ? Colors.orange
+                                              : Colors.grey[300]!,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 20,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                              color: isSPDauGia
+                                                  ? Colors.orange
+                                                  : Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color: isSPDauGia
+                                                    ? Colors.orange
+                                                    : Colors.grey[400]!,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: isSPDauGia
+                                                ? Icon(
+                                                    Icons.check,
+                                                    size: 14,
+                                                    color: Colors.white,
+                                                  )
+                                                : null,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Sản phẩm đấu giá',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: isSPDauGia
+                                                    ? FontWeight.w600
+                                                    : FontWeight.normal,
+                                                color: isSPDauGia
+                                                    ? Colors.orange[700]
+                                                    : Colors.grey[700],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Các trường thông tin khác
                       TextField(
                         controller: titleController,
                         decoration: InputDecoration(
@@ -453,7 +625,8 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
     final TextEditingController yearController = TextEditingController(
       text: artwork.yearcreated,
     );
-
+    isSPDauGia = artwork.isSPDauGia ?? false;
+    isSPThuong = artwork.isSPThuong ?? false;
     selectedArtist = artwork.artist;
     selectedMaterial = artwork.material;
     selectedCategory = artwork.genre;
@@ -562,6 +735,39 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                         labelText: 'Mô tả',
                         border: OutlineInputBorder(),
                       ),
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CheckboxListTile(
+                            title: Text('Sản phẩm thưởng'),
+                            value: isSPThuong,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isSPThuong = value ?? false;
+                                if (isSPThuong) isSPDauGia = false;
+                              });
+                            },
+                            controlAffinity: ListTileControlAffinity.leading,
+                            dense: true,
+                          ),
+                        ),
+                        Expanded(
+                          child: CheckboxListTile(
+                            title: Text('Sản phẩm đấu giá'),
+                            value: isSPDauGia,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isSPDauGia = value ?? false;
+                                if (isSPDauGia) isSPThuong = false;
+                              });
+                            },
+                            controlAffinity: ListTileControlAffinity.leading,
+                            dense: true,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

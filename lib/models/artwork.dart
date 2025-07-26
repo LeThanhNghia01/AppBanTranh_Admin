@@ -9,6 +9,8 @@ class ArtworkItem {
   final String? yearcreated; // Năm sáng tác (có thể để null nếu không có)
   final String? genre;
   final List<String> additionalImages; //danh sách ảnh phụ
+  final bool? isSPThuong;
+  final bool? isSPDauGia;
 
   ArtworkItem({
     required this.id, // Thêm id vào constructor
@@ -20,8 +22,9 @@ class ArtworkItem {
     required this.material,
     required this.genre,
     required this.yearcreated, // Năm sáng tác
-
     this.additionalImages = const [],
+    required this.isSPDauGia,
+    required this.isSPThuong,
   });
   //getter lấy tất cả ảnh chính và phụ
   List<String> get allImages => [imagePath, ...additionalImages];
@@ -43,6 +46,8 @@ final List<ArtworkItem> artworks = [
       'assets/images/flowerstyle.jpg',
       'assets/images/flowerstyle.jpg',
     ],
+    isSPThuong: true,
+    isSPDauGia: false,
   ),
   ArtworkItem(
     id: '2',
@@ -58,6 +63,8 @@ final List<ArtworkItem> artworks = [
       'assets/images/flowerstyle.jpg',
       'assets/images/flowerstyle.jpg',
     ],
+    isSPThuong: true,
+    isSPDauGia: false,
   ),
   ArtworkItem(
     id: '3',
@@ -73,6 +80,8 @@ final List<ArtworkItem> artworks = [
       'assets/images/flowerstyle.jpg',
       'assets/images/flowerstyle.jpg',
     ],
+    isSPThuong: true,
+    isSPDauGia: false,
   ),
   ArtworkItem(
     id: '4',
@@ -88,5 +97,7 @@ final List<ArtworkItem> artworks = [
       'assets/images/flowerstyle.jpg',
       'assets/images/flowerstyle.jpg',
     ],
+    isSPThuong: true,
+    isSPDauGia: false,
   ),
 ];
