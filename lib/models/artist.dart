@@ -4,17 +4,14 @@ class Artist {
   final String artistname;
   final String? profilePictureUrl;
   final DateTime? createdAt;
-  final bool isVerified;
 
   Artist({
     required this.id,
     required this.artistname,
     this.profilePictureUrl,
     DateTime? createdAt,
-    this.isVerified = true,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  // Copy constructor for editing
   Artist copyWith({
     String? id,
     String? artistname,
@@ -27,7 +24,6 @@ class Artist {
       artistname: artistname ?? this.artistname,
       profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
       createdAt: createdAt ?? this.createdAt,
-      isVerified: isVerified ?? this.isVerified,
     );
   }
 
@@ -38,7 +34,6 @@ class Artist {
       'artistname': artistname,
       'profilePictureUrl': profilePictureUrl,
       'createdAt': createdAt?.toIso8601String(),
-      'isVerified': isVerified,
     };
   }
 
@@ -51,13 +46,12 @@ class Artist {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
-      isVerified: json['isVerified'] ?? true,
     );
   }
 
   @override
   String toString() {
-    return 'Artist{id: $id, artistname: $artistname, isVerified: $isVerified}';
+    return 'Artist{id: $id, artistname: $artistname}';
   }
 
   @override

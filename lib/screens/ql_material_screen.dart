@@ -65,7 +65,7 @@ class _QlMaterialScreenState extends State<QlMaterialScreen> {
                     materials.add(
                       material_model.Material(
                         id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        genreName: nameController.text,
+                        materialName: nameController.text,
                         description: descController.text,
                       ),
                     );
@@ -86,7 +86,7 @@ class _QlMaterialScreenState extends State<QlMaterialScreen> {
       context: context,
       builder: (context) {
         final TextEditingController nameController = TextEditingController(
-          text: material.genreName,
+          text: material.materialName,
         );
         final TextEditingController descController = TextEditingController(
           text: material.description,
@@ -129,7 +129,7 @@ class _QlMaterialScreenState extends State<QlMaterialScreen> {
                   if (index != -1) {
                     materials[index] = material_model.Material(
                       id: material.id,
-                      genreName: nameController.text,
+                      materialName: nameController.text,
                       description: descController.text,
                     );
                   }
@@ -174,7 +174,7 @@ class _QlMaterialScreenState extends State<QlMaterialScreen> {
   Widget build(BuildContext context) {
     final filteredMaterials = materials.where((material) {
       final query = _searchQuery.toLowerCase();
-      return material.genreName.toLowerCase().contains(query) ||
+      return material.materialName.toLowerCase().contains(query) ||
           material.description.toLowerCase().contains(query);
     }).toList();
 
@@ -253,7 +253,7 @@ class _QlMaterialScreenState extends State<QlMaterialScreen> {
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(16),
                     title: Text(
-                      material.genreName,
+                      material.materialName,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
