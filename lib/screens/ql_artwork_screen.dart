@@ -1,7 +1,10 @@
 // lib/screens/home_screen.dart
+import 'dart:io';
 import 'package:app_ban_tranh_admin/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:app_ban_tranh_admin/models/artwork.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 class QlArtworkScreen extends StatefulWidget {
   final User user;
@@ -13,6 +16,8 @@ class QlArtworkScreen extends StatefulWidget {
 }
 
 class _QlArtworkScreenState extends State<QlArtworkScreen> {
+  File? imagePath;
+  List<File> additionalImages = [];
   //kiểm tra xem có tích vào box phân loại sản phẩm k
   bool isSPThuong = false;
   bool isSPDauGia = false;
@@ -40,6 +45,31 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
     _showDeleteConfirmDialog(artwork);
   }
 
+  //hàm thêm ảnh chính từ thư viện
+  Future<void> _pickMainImage() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        imagePath = File(pickedFile.path);
+      });
+    }
+  }
+
+  //hàm chọn nhiều ảnh phụ
+  Future<void> _pickAdditionalImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.image,
+    );
+    if (result != null) {
+      setState(() {
+        additionalImages = result.paths.map((path) => File(path!)).toList();
+      });
+    }
+  }
+
   // Hàm hiển thị dialog thêm tác phẩm mới
   void _showAddArtworkDialog() {
     final TextEditingController titleController = TextEditingController();
@@ -47,17 +77,48 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
     final TextEditingController descriptionController = TextEditingController();
     final TextEditingController yearController = TextEditingController();
 
+    // Tạo biến local cho dialog thay vì dùng biến class
+    File? localImagePath;
+    List<File> localAdditionalImages = [];
+
     selectedArtist = null;
     selectedMaterial = null;
     selectedCategory = null;
     isSPThuong = false;
     isSPDauGia = false;
 
+    // Hàm chọn ảnh chính local
+    Future<void> pickMainImageLocal(StateSetter setDialogState) async {
+      final pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+      );
+      if (pickedFile != null) {
+        setDialogState(() {
+          localImagePath = File(pickedFile.path);
+        });
+      }
+    }
+
+    // Hàm chọn ảnh phụ local
+    Future<void> pickAdditionalImageLocal(StateSetter setDialogState) async {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.image,
+      );
+      if (result != null) {
+        setDialogState(() {
+          localAdditionalImages = result.paths
+              .map((path) => File(path!))
+              .toList();
+        });
+      }
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (context, setDialogState) {
             return AlertDialog(
               title: Text('Thêm tác phẩm mới'),
               content: SingleChildScrollView(
@@ -66,7 +127,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Phần phân loại sản phẩm - Di chuyển lên đầu
+                      // Phần phân loại sản phẩm
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[50],
@@ -92,7 +153,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () {
-                                      setState(() {
+                                      setDialogState(() {
                                         isSPThuong = !isSPThuong;
                                         if (isSPThuong) isSPDauGia = false;
                                       });
@@ -161,7 +222,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () {
-                                      setState(() {
+                                      setDialogState(() {
                                         isSPDauGia = !isSPDauGia;
                                         if (isSPDauGia) isSPThuong = false;
                                       });
@@ -236,7 +297,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                       TextField(
                         controller: titleController,
                         decoration: InputDecoration(
-                          labelText: 'Tên tác phẩm *',
+                          labelText: 'Tên tác phẩm',
                           prefixIcon: Icon(Icons.title),
                           border: OutlineInputBorder(),
                         ),
@@ -245,7 +306,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                       DropdownButtonFormField<String>(
                         value: selectedArtist,
                         decoration: InputDecoration(
-                          labelText: 'Nghệ sĩ *',
+                          labelText: 'Nghệ sĩ',
                           prefixIcon: Icon(Icons.person),
                           border: OutlineInputBorder(),
                         ),
@@ -256,7 +317,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                           );
                         }).toList(),
                         onChanged: (newValue) {
-                          setState(() {
+                          setDialogState(() {
                             selectedArtist = newValue;
                           });
                         },
@@ -272,7 +333,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                         controller: priceController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText: 'Giá *',
+                          labelText: 'Giá',
                           prefixIcon: Icon(Icons.attach_money),
                           border: OutlineInputBorder(),
                         ),
@@ -292,7 +353,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                           );
                         }).toList(),
                         onChanged: (newValue) {
-                          setState(() {
+                          setDialogState(() {
                             selectedMaterial = newValue;
                           });
                         },
@@ -322,7 +383,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                           );
                         }).toList(),
                         onChanged: (newValue) {
-                          setState(() {
+                          setDialogState(() {
                             selectedCategory = newValue;
                           });
                         },
@@ -337,18 +398,170 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Chọn ảnh từ thư viện
-                        },
-                        child: Text('Chọn ảnh chính'),
+
+                      // Phần chọn ảnh chính - ĐÃ SỬA
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ảnh chính',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          // Hiển thị preview ảnh chính nếu đã chọn
+                          if (localImagePath != null)
+                            Container(
+                              height: 120,
+                              margin: EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  localImagePath!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
+                              ),
+                            ),
+                          ElevatedButton(
+                            onPressed: () => pickMainImageLocal(setDialogState),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.grey[800],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.image, size: 18),
+                                SizedBox(width: 8),
+                                Text(
+                                  localImagePath == null
+                                      ? 'Chọn ảnh chính'
+                                      : 'Thay đổi ảnh chính',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Chọn nhiều ảnh phụ
-                        },
-                        child: Text('Chọn ảnh phụ'),
+                      SizedBox(height: 16),
+
+                      // Phần chọn ảnh phụ - ĐÃ SỬA
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ảnh phụ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          // Hiển thị danh sách preview ảnh phụ nếu có
+                          if (localAdditionalImages.isNotEmpty)
+                            Container(
+                              height: 100,
+                              margin: EdgeInsets.only(bottom: 8),
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: localAdditionalImages.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    width: 100,
+                                    margin: EdgeInsets.only(right: 8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.grey[300]!,
+                                      ),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          child: Image.file(
+                                            localAdditionalImages[index],
+                                            fit: BoxFit.cover,
+                                            width: 100,
+                                            height: 100,
+                                          ),
+                                        ),
+                                        // Nút xóa ảnh
+                                        Positioned(
+                                          top: 4,
+                                          right: 4,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setDialogState(() {
+                                                localAdditionalImages.removeAt(
+                                                  index,
+                                                );
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 20,
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.close,
+                                                size: 14,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ElevatedButton(
+                            onPressed: () =>
+                                pickAdditionalImageLocal(setDialogState),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.grey[800],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.collections, size: 18),
+                                SizedBox(width: 8),
+                                Text(
+                                  localAdditionalImages.isEmpty
+                                      ? 'Chọn ảnh phụ'
+                                      : 'Thêm ảnh phụ',
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (localAdditionalImages.isNotEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 4),
+                              child: Text(
+                                'Đã chọn ${localAdditionalImages.length} ảnh',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -377,7 +590,26 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                       return;
                     }
 
-                    // Xử lý thêm tác phẩm
+                    // Kiểm tra nếu là sản phẩm thường thì phải có ảnh chính
+                    if (isSPThuong && localImagePath == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Vui lòng chọn ảnh chính cho sản phẩm'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Cập nhật ảnh vào biến class nếu cần
+                    setState(() {
+                      imagePath = localImagePath;
+                      additionalImages = localAdditionalImages;
+                    });
+
+                    // Xử lý thêm tác phẩm với ảnh
+                    // TODO: Thêm logic upload ảnh lên server ở đây
+
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -645,7 +877,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                     TextField(
                       controller: titleController,
                       decoration: InputDecoration(
-                        labelText: 'Tên tác phẩm *',
+                        labelText: 'Tên tác phẩm',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -653,7 +885,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                     DropdownButtonFormField<String>(
                       value: selectedArtist,
                       decoration: InputDecoration(
-                        labelText: 'Nghệ sĩ *',
+                        labelText: 'Nghệ sĩ',
                         prefixIcon: Icon(Icons.person),
                         border: OutlineInputBorder(),
                       ),
@@ -674,7 +906,7 @@ class _QlArtworkScreenState extends State<QlArtworkScreen> {
                       controller: priceController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        labelText: 'Giá *',
+                        labelText: 'Giá',
                         border: OutlineInputBorder(),
                       ),
                     ),
