@@ -1,6 +1,7 @@
 // lib/screens/home_screen.dart
 
 import 'package:app_ban_tranh_admin/models/user.dart';
+import 'package:app_ban_tranh_admin/screens/ql_ac_admin_screen.dart';
 import 'package:app_ban_tranh_admin/screens/ql_artist_screen.dart';
 import 'package:app_ban_tranh_admin/screens/ql_artwork_screen.dart';
 import 'package:app_ban_tranh_admin/screens/ql_genre_art_screen.dart';
@@ -182,9 +183,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Chuyển đến trang quản lý Admin
-                        print('Chuyển đến trang quản lý Admin');
-                        // Navigator.pushNamed(context, '/manage-admin');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                QlAcAdminScreen(user: widget.user),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
